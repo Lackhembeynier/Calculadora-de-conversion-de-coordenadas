@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Gráfica Profesional</title>
+    <!-- Google Fonts: Roboto y Montserrat -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Enlace a tu nueva hoja de estilos -->
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+
+    <!-- HERO CON EFECTO PARALLAX -->
+    <header class="parallax-header">
+        <div class="header-content">
+            <h1>Calculadora Gráfica Universal</h1>
+            <p>Conversión de Coordenadas y Graficación de Funciones 2D/3D</p>
+        </div>
+    </header>
+
+    <!-- NAVEGACIÓN PRINCIPAL -->
+    <nav class="app-nav">
+        <button id="btn-conversor" onclick="mostrarApp('conversor')" class="active">Conversor de Coordenadas</button>
+        <button id="btn-graficadora" onclick="mostrarApp('graficadora')">Graficadora de Funciones</button>
+    </nav>
+    
+    <div class="content-wrapper">
+        <!-- APP 1: Conversor de Coordenadas -->
+        <main id="app-conversor" class="app-card visible">
+            <section class="card-content">
+                <h2>Conversor de Puntos</h2>
+                <div class="control-group">
+                    <label for="tipoCoordenada">Sistema de Entrada:</label>
+                    <select id="tipoCoordenada" class="form-control" onchange="actualizarEtiquetas()">
+                        <option value="cilindricas" selected>Cilíndricas (r, θ, z)</option>
+                        <option value="polares">Polares (r, θ)</option>
+                        <option value="esfericas">Esféricas (ρ, θ, φ)</option>
+                        <option value="rectangulares">Rectangulares (x, y, z)</option>
+                    </select>
+                </div>
+                
+                <div id="inputs-contenedor">
+                    <div class="control-group"><label id="valorx">Radio (r):</label> <input type="number" id="val1" class="form-control" step="any"></div>
+                    <div class="control-group"><label id="valory">Ángulo (θ):</label> <input type="number" id="val2" class="form-control" step="any"></div>
+                    <div id="grupo-val3" class="control-group"><label id="valorz">Altura (Z):</label> <input type="number" id="val3" class="form-control" step="any"></div>
+                </div>
+                
+                <div id="quitarang" class="control-group radio-group">
+                    <span>Unidades de Ángulo:</span>
+                    <label><input type="radio" name="unidad" value="grados" checked> Grados</label>
+                    <label><input type="radio" name="unidad" value="radianes"> Radianes</label>
+                </div>
+
+                <div class="control-group checkbox-group">
+                    <input type="checkbox" id="checkPasos"> <label for="checkPasos">Mostrar procedimiento</label>
+                </div>
+
+                <button class="btn" onclick="iniciarProceso()">Realizar Conversión</button>
+                
+                <div id="area-resultados">
+                    <h3>Resultados:</h3>
+                    <p id="salida-texto">Esperando datos de puntos...</p>
+                    <div id="procedimiento-contenedor" style="display:none;">
+                        <strong>Procedimiento Detallado:</strong>
+                        <div id="pasos-texto"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- APP 2: Graficadora de Funciones -->
+        <main id="app-graficadora" class="app-card">
+            <section class="card-content">
+                 <h2>Graficadora de Funciones</h2>
+                 <div class="control-group">
+                    <label>Tipo de Función:</label>
+                    <select id="tipoGraficaFuncion" class="form-control" onchange="cambioVistaFuncion()">
+                        <option value="explicita">Rectangular 2D | y = f(x)</option>
+                        <option value="polar">Polar 2D | r = f(θ)</option>
+                        <option value="superficie3d">Rectangular 3D | z = f(x, y)</option>
+                    </select>
+                </div>
+                <div class="control-group function-input">
+                    <label id="labelFuncion">y(x) =</label>
+                    <input type="text" id="ecuacionInput" class="form-control" placeholder="Ej: sin(x) * x">
+                </div>
+                <div class="control-group-inline">
+                    <div class="control-group">
+                        <label>Dominio Min:</label>
+                        <input type="number" id="dominioMin" class="form-control" value="-10" step="any">
+                    </div>
+                    <div class="control-group">
+                        <label>Dominio Max:</label>
+                        <input type="number" id="dominioMax" class="form-control" value="10" step="any">
+                    </div>
+                </div>
+                <button class="btn" onclick="generarGraficaEcuacion()">Dibujar Ecuación</button>
+            </section>
+        </main>
+        
+        <!-- VISUALIZACIÓN DE GRÁFICOS (COMPARTIDA) -->
+        <section id="visualization-section" class="app-card">
+             <div class="card-content">
+                <h2>Visualización Gráfica</h2>
+                <div class="control-group">
+                    <label>Modo de Vista:</label>
+                    <select id="tipoVista" class="form-control" onchange="cambiarModoGrafica()">
+                        <option value="2d">Plano 2D</option>
+                        <option value="3d">Espacio 3D</option>
+                    </select>
+                </div>
+                <div id="area-visualizacion">
+                    <div id="grafica-2d" class="plotly-container"></div>
+                    <div id="grafica-3d" class="plotly-container" style="display:none;"></div>
+                </div>
+             </div>
+        </section>
+    </div>
+
+    <!-- Scripts (Sin cambios) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.11.0/math.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+    <script src="JS/conversores.js"></script>
+    <script src="JS/graficador.js"></script>
+    <script src="JS/graficador_funciones.js"></script>
+    <script src="JS/main.js"></script>
+    
+    <script>
+        // Función de navegación (Sin cambios)
+        function mostrarApp(appName) {
+            document.querySelectorAll('main.app-card').forEach(app => app.classList.remove('visible'));
+            document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`app-${appName}`).classList.add('visible');
+            document.getElementById(`btn-${appName}`).classList.add('active');
+        }
+        window.onload = () => {
+            actualizarEtiquetas();
+            mostrarApp('conversor');
+        };
+    </script>
+</body>
+</html>
